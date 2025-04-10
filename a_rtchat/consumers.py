@@ -23,6 +23,6 @@ class ChatroomConsumer(WebsocketConsumer):
         context = {
             'message': message,
             'user': self.user,
-        }        
+        }
         html = render_to_string("a_rtchat/partials/chat_message_p.html", context=context)
         self.send(text_data=html)

@@ -45,8 +45,6 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'allauth',
     'allauth.account',
-
-    # My apps
     'a_home',
     'a_users',
     'a_rtchat',
@@ -88,11 +86,9 @@ TEMPLATES = [
         },
     },
 ]
-
-# WSGI_APPLICATION = 'a_core.wsgi.application'
+#WSGI_APPLICATION = 'a_core.wsgi.application'
 
 ASGI_APPLICATION = 'a_core.asgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

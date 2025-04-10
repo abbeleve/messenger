@@ -24,6 +24,6 @@ from a_rtchat import routing
 application = ProtocolTypeRouter({
     "http": django_asgi_app,
     "websocket": AllowedHostsOriginValidator(
-        AuthMiddlewareStack(URLRouter(routing.websocker_urlpatterns))
+        AuthMiddlewareStack(URLRouter(routing.websocket_urlpatterns))
     )
 })
