@@ -37,7 +37,11 @@
         const container = document.getElementById('chat_container');
         container.scrollTop = container.scrollHeight;
     }
-    
+
     scrollToBottom();
+    
+    document.body.addEventListener('htmx:wsAfterMessage', function(evt) {
+        scrollToBottom();
+    });
 </script>
 {% endblock %}
