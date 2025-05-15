@@ -1,0 +1,10 @@
+
+<h1>Покинуть чат?</h1>
+
+<h2>"{{ chat_group.groupchat_name }}"</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit" class="button-red mt-4">Да</button>
+    <a class="button button-gray ml-1" href="{{request.META.HTTP_REFERER}}>">Отменить</a>
+</form>

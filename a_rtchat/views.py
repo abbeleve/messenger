@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from .models import *
 from .forms import *
+from django.contrib import messages
 
 @login_required
 def chat_view(request, chatroom_name='public-chat'):
@@ -19,14 +20,15 @@ def chat_view(request, chatroom_name='public-chat'):
                 other_user = member
                 break
 
-    # 🔽 Обработка приватных чатов с информацией о собеседнике
     private_chats = []
     for chat in request.user.chat_groups.filter(is_private=True):
-        # Найти второго участника
         other_member = chat.members.exclude(id=request.user.id).first()
-        # Добавить атрибут с именем собеседника
         chat.other_member_name = other_member.profile.name if other_member else 'Пользователь'
         private_chats.append(chat)
+
+    if chat_group.groupchat_name:
+        if request.user not in chat_group.members.all():
+            chat_group.members.add(request.user)
 
     if request.htmx:
         form = ChatmessageCreateForm(request.POST)
@@ -86,3 +88,57 @@ def create_groupchat(request):
         'form': form
     }
     return render(request, 'a_rtchat/create_groupchat.html', context)
+
+@login_required
+def chatroom_edit_view(request, chatroom_name):
+    chat_group = get_object_or_404(ChatGroup, group_name = chatroom_name)
+    if request.user !=  chat_group.admin:
+        raise Http404()
+    
+    form = ChatRoomEditForm(instance=chat_group)
+
+    if request.method == 'POST':
+        form = ChatRoomEditForm(request.POST, instance=chat_group)
+        if form.is_valid():
+            form.save()
+
+            remove_members = request.POST.getlist('remove_members')
+            for member_id in remove_members:
+                member = User.objects.get(id=member_id)
+                chat_group.members.remove(member)
+
+            return redirect('chatroom', chatroom_name)
+        
+    context = {
+        'form' : form,
+        'chat_group' : chat_group
+    }
+    return render(request, 'a_rtchat/chatroom_edit.html', context)
+
+@login_required
+def chatroom_delete_view(request, chatroom_name):
+    chat_group = get_object_or_404(ChatGroup, group_name = chatroom_name)
+    if request.user != chat_group.admin:
+        raise Http404()
+    
+    if request.method == 'POST':
+        chat_group.delete()
+        messages.success(request, f'Вы удалили чат "{chat_group.groupchat_name or "общий"}"')
+        return redirect('home')
+    
+    return render(request, 'a_rtchat/chatroom_delete.html', {'chat_group':chat_group})
+
+@login_required
+def chatroom_leave_view(request, chatroom_name):
+    chat_group = get_object_or_404(ChatGroup, group_name = chatroom_name)
+    if request.user not in chat_group.members.all():
+        raise Http404()
+    
+    if request.method == "POST":
+        if request.user == chat_group.admin:
+            messages.warning(request, 'Вы не можете покинуть чат, так как являетесь администратором. Вы можете только удалить сообщество.')
+            return redirect('chatroom', chatroom_name=chatroom_name)
+        
+        chat_group.members.remove(request.user)
+        messages.success(request, f'Вы покинули чат "{chat_group.groupchat_name or "общий"}"')
+        return redirect('home')
