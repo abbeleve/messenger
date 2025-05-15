@@ -34,6 +34,33 @@
                         </ul>
                     </div>
                 </li>
+                <!-- Меню: Приватные чаты -->
+                <li x-data="{ dropdownOpen: false }" class="relative">
+                    <a @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="cursor-pointer select-none">
+                        Приватные чаты
+                        <img x-bind:class="dropdownOpen && 'rotate-180 duration-300'" class="w-4 ml-2 inline" src="https://img.icons8.com/small/32/ffffff/expand-arrow.png " alt="Dropdown" />
+                    </a>
+                    <div x-show="dropdownOpen" x-cloak class="absolute right-0 bg-white text-black shadow rounded-lg w-40 p-2 z-20"
+                        x-transition:enter="duration-300 ease-out"
+                        x-transition:enter-start="opacity-0 -translate-y-5 scale-90"
+                        x-transition:enter-end="opacity-100 translate-y-0 scale-100">
+                        <ul class='hoverlist [&>li>a]:justify-end'>
+                            {% for chat in private_chats %}
+                                <li>
+                                    <a href="{% url 'chatroom' chat.group_name %}">
+                                        {% if chat.groupchat_name %}
+                                            {{ chat.groupchat_name|slice:":30" }}
+                                        {% else %}
+                                            {{ chat.other_member_name }}
+                                        {% endif %}
+                                    </a>
+                                </li>
+                            {% empty %}
+                                <li><i>Нет приватных чатов</i></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </li>
 
                 <!-- Другие ссылки пользователя -->
                 <li x-data="{ dropdownOpen: false }" class="relative">

@@ -18,30 +18,36 @@ def chat_view(request, chatroom_name='public-chat'):
             if member != request.user:
                 other_user = member
                 break
-    
-    if chat_group.groupchat_name:
-        if request.user not in chat_group.members.all():
-            chat_group.members.add(request.user)
-            
+
+    # 🔽 Обработка приватных чатов с информацией о собеседнике
+    private_chats = []
+    for chat in request.user.chat_groups.filter(is_private=True):
+        # Найти второго участника
+        other_member = chat.members.exclude(id=request.user.id).first()
+        # Добавить атрибут с именем собеседника
+        chat.other_member_name = other_member.profile.name if other_member else 'Пользователь'
+        private_chats.append(chat)
+
     if request.htmx:
         form = ChatmessageCreateForm(request.POST)
-        if form.is_valid:
+        if form.is_valid():
             message = form.save(commit=False)
             message.author = request.user
             message.group = chat_group
             message.save()
             context = {
-                'message' : message,
-                'user' : request.user
+                'message': message,
+                'user': request.user
             }
             return render(request, 'a_rtchat/partials/chat_message_p.html', context)
-        
+
     context = {
-        'chat_messages' : chat_messages,
-        'form' : form,
-        'other_user' : other_user,
-        'chatroom_name' : chatroom_name,
-        'chat_group' : chat_group,
+        'chat_messages': chat_messages,
+        'form': form,
+        'other_user': other_user,
+        'chatroom_name': chatroom_name,
+        'chat_group': chat_group,
+        'private_chats': private_chats,  # Теперь содержит chat.other_member_name
     }
 
     return render(request, 'a_rtchat/chat.html', context)
