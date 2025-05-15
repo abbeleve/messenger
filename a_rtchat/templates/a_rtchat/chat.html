@@ -20,16 +20,16 @@
                 </div>
             </a>
             {% elif chat_group.groupchat_name %}
-            <div class="flex flex-wrap gap-2 justify-center"> <!-- Указываем flexbox -->
+            <ul id='groupchat-members' class="flex gap-4">
                 {% for member in chat_group.members.all %}
-                <div class="flex flex-col items-center justify-center w-20 gap-2">
-                    <a href="{% url 'profile' member.username %}">
+                <li>
+                    <a href="{% url 'profile' member.username %}" class="flex flex-col text-gray-400 items-center justify-center w-20 gap-2">
                         <img src="{{ member.profile.avatar }}" class="w-14 h-14 rounded-full object-cover" />
                         {{ member.profile.name|slice:":10" }}
                     </a>
-                </div>
+                </li>
                 {% endfor %}
-            </div>
+            </ul>
             {% else %}
             <div id="online-icon"></div>
             <span id="online-count" class="pr-1"></span>online
