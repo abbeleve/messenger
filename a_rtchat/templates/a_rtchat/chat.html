@@ -3,6 +3,9 @@
 {% block content %}
 
 <wrapper class="block max-w-2xl mx-auto my-10 px-6">
+    {% if chat_group.groupchat_name %}
+    <h2>{{ chat_group.groupchat_name }}</h2>
+    {% endif %}
     <div id="chat_window" class="h-[45rem] flex flex-col bg-gray-800 rounded-2xl shadow-2xl relative p-1">
         <div class="flex justify-center text-emerald-400 bg-gray-800 p-2 sticky top-0 z-10">
             {% if other_user %}
@@ -16,6 +19,17 @@
                     </div>
                 </div>
             </a>
+            {% elif chat_group.groupchat_name %}
+            <div class="flex flex-wrap gap-2 justify-center"> <!-- Указываем flexbox -->
+                {% for member in chat_group.members.all %}
+                <div class="flex flex-col items-center justify-center w-20 gap-2">
+                    <a href="{% url 'profile' member.username %}">
+                        <img src="{{ member.profile.avatar }}" class="w-14 h-14 rounded-full object-cover" />
+                        {{ member.profile.name|slice:":10" }}
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
             {% else %}
             <div id="online-icon"></div>
             <span id="online-count" class="pr-1"></span>online
