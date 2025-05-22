@@ -21,7 +21,10 @@ class GroupMessage(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.author.username} : {self.body}'
+        if self.body:
+            return f'{self.author.username} : {self.body}'
+        elif self.file:
+            return f'{self.author.username} : {self.file}'
     
     class Meta:
         ordering = ['-created']
